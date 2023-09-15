@@ -33,7 +33,7 @@ class SubscriptionViewModel(context: Context): ViewModel() {
                 for (purchase in purchases) {
                     viewModelScope.launch {
                         handlePurchase(purchase)
-                        // On Purchase
+                        onPurchaseComplete?.let { it() }
                     }
                 }
             }
@@ -45,8 +45,6 @@ class SubscriptionViewModel(context: Context): ViewModel() {
         // Verify the purchase.
         // Ensure entitlement was not already granted for this purchaseToken.
         // Grant entitlement to the user.
-
-        Log.d("myTag", "handle purchase")
         val consumeParams =
             ConsumeParams.newBuilder()
                 .setPurchaseToken(purchase.purchaseToken)
