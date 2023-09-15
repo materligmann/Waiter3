@@ -23,6 +23,12 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import centmoinshuitstudio.waiter3.MainActivity.OrderScreen
 import centmoinshuitstudio.waiter3.ModelPreferencesManager
+import com.example.waiter3.Currency.CurrencyScreen
+import com.example.waiter3.Menu.MenuScreen
+import com.example.waiter3.NewOrder.NewOrderScreen
+import com.example.waiter3.Orders.OrdersScreen
+import com.example.waiter3.Settings.SettingsScreen
+import com.example.waiter3.Subscription.SubscriptionScreen
 
 
 class MainActivity : ComponentActivity() {
