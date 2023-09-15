@@ -85,7 +85,16 @@ fun SubscriptionScreen(navController: NavController) {
                             ArgumentCard(argument = argument)
                         }
                         Spacer(modifier = Modifier.height(20.dp))
-                        Button(onClick = { /*TODO*/ }, shape = RoundedCornerShape(20), modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(containerColor = Color.Black)) {
+                        Button(
+                            onClick = {
+                                viewModel.buy {
+                                    navController.navigateUp()
+                                }
+                            },
+                            shape = RoundedCornerShape(20),
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
+                        ) {
                             Text(text = "Subscribe for " + priceText.value + " / Month", color = Color.White, fontWeight = FontWeight.Bold)
                         }
                     }

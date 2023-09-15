@@ -1,10 +1,13 @@
 package com.example.waiter3.Subscription
 
+import android.app.Activity
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
+import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.ConsumeParams
 import com.android.billingclient.api.ProductDetails
@@ -18,10 +21,14 @@ import kotlinx.coroutines.withContext
 
 class SubscriptionViewModel(context: Context): ViewModel() {
 
+    private val context = context
+
     var onPurchaseComplete: (() -> Unit)? = null
 
     private val purchasesUpdatedListener =
         PurchasesUpdatedListener { billingResult, purchases ->
+            Log.d("myTag", billingResult.toString())
+            Log.d("myTag", "purchaseUpdatedListener")
             if (purchases != null) {
                 for (purchase in purchases) {
                     viewModelScope.launch {
@@ -39,9 +46,10 @@ class SubscriptionViewModel(context: Context): ViewModel() {
         // Ensure entitlement was not already granted for this purchaseToken.
         // Grant entitlement to the user.
 
+        Log.d("myTag", "handle purchase")
         val consumeParams =
             ConsumeParams.newBuilder()
-                .setPurchaseToken(purchase.getPurchaseToken())
+                .setPurchaseToken(purchase.purchaseToken)
                 .build()
         val consumeResult = withContext(Dispatchers.IO) {
             billingClient.consumeAsync(consumeParams)
@@ -54,6 +62,29 @@ class SubscriptionViewModel(context: Context): ViewModel() {
         .build()
 
     var productDetails: ProductDetails? = null
+
+    fun purchase() {
+        val productDetailsParamsList = listOf(
+            productDetails?.let {
+                Log.d("myTag", productDetails.toString())
+                it.subscriptionOfferDetails?.get(0)?.let { it1 ->
+                    BillingFlowParams.ProductDetailsParams.newBuilder()
+                        // retrieve a value for "productDetails" by calling queryProductDetailsAsync()
+                        .setProductDetails(it)
+                        .setOfferToken(it1.offerToken)
+                        .build()
+                }
+            }
+        )
+
+        val billingFlowParams = BillingFlowParams.newBuilder()
+            .setProductDetailsParamsList(productDetailsParamsList)
+            .build()
+
+        val activity = context as Activity
+        Log.d("myTag", billingFlowParams.toString())
+        val billingResult = billingClient.launchBillingFlow(activity, billingFlowParams)
+    }
 
     fun getPrice(completion: (String) -> Unit) {
         billingClient.startConnection(object : BillingClientStateListener {
@@ -86,8 +117,12 @@ class SubscriptionViewModel(context: Context): ViewModel() {
             }
         })
     }
+
+    fun buy(completion: () -> Unit) {
+        this.onPurchaseComplete = completion
+        purchase()
+    }
 }
 
 private fun BillingClient.consumeAsync(consumeParams: ConsumeParams) {
-
 }
