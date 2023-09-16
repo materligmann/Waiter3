@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Surface
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -51,7 +52,7 @@ fun OrderScreen(navController: NavController, orderId: String) {
         }
         Scaffold(
             topBar = {
-                AppBar("Order", Icons.Default.ArrowBack, null, { navController.navigateUp()}, { })
+                AppBar("Order", Icons.Default.ArrowBack, Icons.Default.Delete, { navController.navigateUp()}, { onDelete(index, rememberedSOrders, navController) })
             },
             bottomBar = {
             }
@@ -85,6 +86,14 @@ fun OrderScreen(navController: NavController, orderId: String) {
                 }
             }
         }
+    }
+}
+
+fun onDelete(index: Int, orders: MutableState<Orders>, navController: NavController) {
+    if (index != -1) {
+        orders.value.entries.removeAt(index)
+        ModelPreferencesManager.put(orders.value, "KEY_ORDERS")
+        navController.navigateUp()
     }
 }
 

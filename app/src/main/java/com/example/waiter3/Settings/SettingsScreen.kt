@@ -97,6 +97,8 @@ fun SettingsScreen(navController: NavHostController) {
                     SettingsCard(settingsNav = SettingsNav("Menu", R.drawable.menu, { navController.navigate("menu") }))
                     SettingsCard(settingsNav = SettingsNav("Currency", R.drawable.euro, { navController.navigate("currency") }))
                     SettingsCard(settingsNav = SettingsNav("Waiter Pro", R.drawable.cart, { navController.navigate("subscription") }))
+                    SettingsCard(settingsNav = SettingsNav("Terms of use", R.drawable.document, { navController.navigate("terms") }))
+                    SettingsCard(settingsNav = SettingsNav("Privacy policy ", R.drawable.unlock, { navController.navigate("privacy") }))
                 }
             }
         }

@@ -2,6 +2,7 @@ package com.example.waiter3.NewOrder
 
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -34,6 +35,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -48,6 +50,8 @@ import com.example.waiter3.Models.Orders
 import com.example.waiter3.Models.QuantityItem
 import com.example.waiter3.Models.QuantitySection
 import com.example.waiter3.Models.QuantityTable
+import com.example.waiter3.Orders.ImageButton
+import centmoinshuitstudio.waiter3.R
 import java.util.Date
 import java.util.UUID
 
@@ -70,7 +74,9 @@ fun NewOrderScreen(navController: NavHostController) {
         }
         rememberedQuantityTable.value = quantityTable
     }
+    val note = remember { mutableStateOf("") }
     val tableDialogOpen = remember { mutableStateOf(false) }
+    val notesDialogOpen = remember { mutableStateOf(false) }
     Scaffold(
         topBar = {
             AppBar("Order", Icons.Default.ArrowBack, null, { navController.navigateUp()}, { })
@@ -80,6 +86,19 @@ fun NewOrderScreen(navController: NavHostController) {
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
             Surface() {
+                if (notesDialogOpen.value) {
+                    AlertDialogBasic(
+                        title = "Enter a note",
+                        firstText = note,
+                        firstPlaceholder = "",
+                        firstKeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                        shouldOpen = notesDialogOpen,
+                        onConfirm = { /*TODO*/ },
+                        secondText = null,
+                        secondPlaceholder = null,
+                        secondKeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+                    )
+                }
                 if (tableDialogOpen.value) {
                     AlertDialogBasic(
                         title = "Enter a table number",
@@ -156,6 +175,9 @@ fun NewOrderScreen(navController: NavHostController) {
                                     ++rememberedQuantityTable.value.sections[sectionIndex].entries[itemIndex].quantity
                                     ++quantity.value
                                     check(canSave, rememberedQuantityTable.value)
+                                },
+                                onNotes = {
+                                    notesDialogOpen.value = true
                                 }) {
 
                             }
@@ -197,7 +219,7 @@ fun check(canSave: MutableState<Boolean>, quantityTable: QuantityTable) {
 }
 
 @Composable
-fun QuantityItemCard(quantityItem: QuantityItem, quantity: MutableState<Int>, onMinus: () -> Unit, onPlus: () -> Unit, clickAction: () -> Unit) {
+fun QuantityItemCard(quantityItem: QuantityItem, quantity: MutableState<Int>, onMinus: () -> Unit, onPlus: () -> Unit, onNotes: () -> Unit, clickAction: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -209,16 +231,26 @@ fun QuantityItemCard(quantityItem: QuantityItem, quantity: MutableState<Int>, on
         ),
         border = BorderStroke(1.dp, Color.Black),
     ) {
-        QuantityItemContent(quantityItem, quantity, onMinus, onPlus)
+        QuantityItemContent(quantityItem, quantity, onMinus, onPlus, onNotes)
     }
 }
 
 @Composable
-fun QuantityItemContent(quantityItem: QuantityItem, quantity: MutableState<Int>, onMinus: () -> Unit, onPlus: () -> Unit){
+fun QuantityItemContent(quantityItem: QuantityItem, quantity: MutableState<Int>, onMinus: () -> Unit, onPlus: () -> Unit, onNotes: () -> Unit){
     Row(
         Modifier
             .fillMaxSize()
-            .padding(10.dp, 10.dp, 10.dp, 10.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+            .padding(10.dp, 10.dp, 10.dp, 10.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.notes),
+            contentDescription = "",
+            modifier = Modifier.clickable {
+                onNotes.invoke()
+            })
+        Spacer(modifier = Modifier.width(10.dp))
         Text(text = quantityItem.item.name, fontSize = 16.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.weight(1f))
         OutlinedButton(

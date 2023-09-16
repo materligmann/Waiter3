@@ -172,7 +172,7 @@ fun onNewOrder(navController: NavController, orders: MutableState<Orders?>) {
         Log.d("myTag", "unlock")
             navController.navigate("newOrder")
     }  else {
-        if (orders.value?.entries?.count() ?: 0 <= 5) {
+        if (orders.value?.entries?.count() ?: 0 < 5) {
             navController.navigate("newOrder")
         } else {
             navController.navigate("subscription")

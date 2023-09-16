@@ -29,6 +29,7 @@ import com.example.waiter3.NewOrder.NewOrderScreen
 import com.example.waiter3.Orders.OrdersScreen
 import com.example.waiter3.Settings.SettingsScreen
 import com.example.waiter3.Subscription.SubscriptionScreen
+import com.example.waiter3.Web.WebScreen
 
 
 class MainActivity : ComponentActivity() {
@@ -69,6 +70,12 @@ fun UserApplication() {
         }
         composable("subscription") {
             SubscriptionScreen(navController = navController)
+        }
+        composable("terms") {
+            WebScreen(navController = navController, "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")
+        }
+        composable("privacy") {
+            WebScreen(navController = navController, "https://docs.google.com/document/d/1MX6NsF7N7MWiuY7Rhk-IshXOL42aB-gkpKfypKIs5N4/edit?usp=sharing")
         }
     }
 }
