@@ -2,6 +2,8 @@ package com.example.waiter3.Orders
 
 
 import android.annotation.SuppressLint
+import android.util.Log
+import android.view.Display.Mode
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -44,9 +46,11 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.runtime.MutableState
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.waiter3.Models.Orders
 import centmoinshuitstudio.waiter3.R
 import com.example.waiter3.AppBar
@@ -70,6 +74,16 @@ fun prepareBottomMenu(): List<BottomMenuItem> {
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun OrdersScreen(navController: NavHostController) {
+    val context = LocalContext.current
+    var viewModel = OrdersViewModel(context)
+    viewModel.connectToBilling {
+        viewModel.checkPurchase()
+    }
+    var unlockPro = ModelPreferencesManager.get<Boolean>("KEY_PRO")
+    if (unlockPro== null) {
+        unlockPro = false
+        ModelPreferencesManager.put(false, "KEY_PRO")
+    }
     var orders = ModelPreferencesManager.get<Orders>("KEY_ORDERS")
     if (orders != null) {
         orders.entries.sortByDescending { it.date }
@@ -84,7 +98,7 @@ fun OrdersScreen(navController: NavHostController) {
 
     Scaffold(
         topBar = {
-            AppBar("Orders", null, Icons.Default.Add, { }, { navController.navigate("newOrder")})
+            AppBar("Orders", null, Icons.Default.Add, { }, { onNewOrder(navController = navController, orders = rememberedOrders) })
         },
         bottomBar = {
             BottomNavigation(
@@ -148,6 +162,20 @@ fun OrdersScreen(navController: NavHostController) {
                     }
                 }
             }
+        }
+    }
+}
+
+fun onNewOrder(navController: NavController, orders: MutableState<Orders?>) {
+    var unlockPro = ModelPreferencesManager.get<Boolean>("KEY_PRO")
+    if (unlockPro == true) {
+        Log.d("myTag", "unlock")
+            navController.navigate("newOrder")
+    }  else {
+        if (orders.value?.entries?.count() ?: 0 <= 5) {
+            navController.navigate("newOrder")
+        } else {
+            navController.navigate("subscription")
         }
     }
 }

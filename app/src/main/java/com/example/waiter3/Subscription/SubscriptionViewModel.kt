@@ -5,6 +5,8 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import centmoinshuitstudio.waiter3.ModelPreferencesManager
+import com.android.billingclient.api.AcknowledgePurchaseParams
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingFlowParams
@@ -40,17 +42,17 @@ class SubscriptionViewModel(context: Context): ViewModel() {
         }
 
     suspend fun handlePurchase(purchase: Purchase) {
-        // Purchase retrieved from BillingClient#queryPurchasesAsync or your PurchasesUpdatedListener.
-
-        // Verify the purchase.
-        // Ensure entitlement was not already granted for this purchaseToken.
-        // Grant entitlement to the user.
-        val consumeParams =
-            ConsumeParams.newBuilder()
-                .setPurchaseToken(purchase.purchaseToken)
-                .build()
-        val consumeResult = withContext(Dispatchers.IO) {
-            billingClient.consumeAsync(consumeParams)
+        if (purchase.purchaseState === Purchase.PurchaseState.PURCHASED) {
+            if (!purchase.isAcknowledged) {
+                ModelPreferencesManager.put(true, "KEY_PRO")
+                val acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder()
+                    .setPurchaseToken(purchase.purchaseToken)
+                val ackPurchaseResult = withContext(Dispatchers.IO) {
+                    billingClient.acknowledgePurchase(acknowledgePurchaseParams.build())
+                }
+            } else {
+                ModelPreferencesManager.put(true, "KEY_PRO")
+            }
         }
     }
 
@@ -122,5 +124,6 @@ class SubscriptionViewModel(context: Context): ViewModel() {
     }
 }
 
-private fun BillingClient.consumeAsync(consumeParams: ConsumeParams) {
+private fun BillingClient.acknowledgePurchase(build: AcknowledgePurchaseParams) {
+
 }
