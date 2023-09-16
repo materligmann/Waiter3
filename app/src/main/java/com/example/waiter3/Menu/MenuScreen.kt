@@ -264,6 +264,10 @@ fun AlertDialogBasic(title: String,
             }
         },
         onDismissRequest = {
+            firstText.value = ""
+            if (secondText != null) {
+                secondText.value = ""
+            }
             shouldOpen.value = false
         },
         confirmButton = {
@@ -276,6 +280,10 @@ fun AlertDialogBasic(title: String,
         dismissButton = {
             TextButton(
                 onClick = {
+                    firstText.value = ""
+                    if (secondText != null) {
+                        secondText.value = ""
+                    }
                     shouldOpen.value = false
                 }
             ) {
