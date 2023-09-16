@@ -77,6 +77,8 @@ fun NewOrderScreen(navController: NavHostController) {
     val note = remember { mutableStateOf("") }
     val tableDialogOpen = remember { mutableStateOf(false) }
     val notesDialogOpen = remember { mutableStateOf(false) }
+    var selectedSection = -1
+    var selectedItem = -1
     Scaffold(
         topBar = {
             AppBar("Order", Icons.Default.ArrowBack, null, { navController.navigateUp()}, { })
@@ -93,7 +95,10 @@ fun NewOrderScreen(navController: NavHostController) {
                         firstPlaceholder = "",
                         firstKeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                         shouldOpen = notesDialogOpen,
-                        onConfirm = { /*TODO*/ },
+                        onConfirm = {
+                            saveNote(rememberedQuantityTable, selectedSection, selectedItem, note.value)
+                            notesDialogOpen.value = false
+                        },
                         secondText = null,
                         secondPlaceholder = null,
                         secondKeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
@@ -177,9 +182,18 @@ fun NewOrderScreen(navController: NavHostController) {
                                     check(canSave, rememberedQuantityTable.value)
                                 },
                                 onNotes = {
+                                    selectedSection = sectionIndex
+                                    selectedItem = itemIndex
                                     notesDialogOpen.value = true
                                 }) {
 
+                            }
+                            if (quantityItem.notes != null) {
+                                for (note in quantityItem.notes!!) {
+                                    NoteCard(note = note) {
+
+                                    }
+                                }
                             }
                         }
                         Spacer(modifier = Modifier.height(30.dp))
@@ -206,6 +220,14 @@ fun NewOrderScreen(navController: NavHostController) {
     }
 }
 
+fun saveNote(quantityTable: MutableState<QuantityTable>, section: Int, item: Int, note: String) {
+    if (quantityTable.value.sections[section].entries[item].notes == null) {
+        quantityTable.value.sections[section].entries[item].notes = arrayListOf(note)
+    } else {
+        quantityTable.value.sections[section].entries[item].notes?.add(note)
+    }
+}
+
 fun check(canSave: MutableState<Boolean>, quantityTable: QuantityTable) {
     var shouldSave = false
     for (section in quantityTable.sections) {
@@ -216,6 +238,29 @@ fun check(canSave: MutableState<Boolean>, quantityTable: QuantityTable) {
         }
     }
     canSave.value = shouldSave
+}
+
+@Composable
+fun NoteCard(note: String, clickAction: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(60.dp)
+            .padding(top = 8.dp, bottom = 4.dp, start = 0.dp, end = 0.dp)
+            .clickable { clickAction.invoke() },
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White,
+        ),
+        border = BorderStroke(1.dp, Color.Black),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = note)
+        }
+    }
 }
 
 @Composable
