@@ -14,6 +14,7 @@ import androidx.compose.material.Surface
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -35,6 +36,7 @@ import com.example.waiter3.Models.QuantityItem
 import com.example.waiter3.AppBar
 import com.example.waiter3.Orders.ImageButton
 import com.example.waiter3.Menu.getSymbol
+import com.example.waiter3.NewOrder.NoteCard
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 
@@ -52,7 +54,7 @@ fun OrderScreen(navController: NavController, orderId: String) {
         }
         Scaffold(
             topBar = {
-                AppBar("Order", Icons.Default.ArrowBack, Icons.Default.Delete, { navController.navigateUp()}, { onDelete(index, rememberedSOrders, navController) })
+                AppBar("Order", Icons.Default.ArrowBack, Icons.Outlined.Delete, { navController.navigateUp()}, { onDelete(index, rememberedSOrders, navController) })
             },
             bottomBar = {
             }
@@ -74,6 +76,11 @@ fun OrderScreen(navController: NavController, orderId: String) {
                             var order = orders.entries[index]
                             order.quantityItems.forEachIndexed { index, quantityItem ->
                                 QuantityItemCard(quantityItem = quantityItem, symbol)
+                                if (quantityItem.notes != null) {
+                                    for (note in quantityItem.notes!!) {
+                                        NoteItemCard(note = note)
+                                    }   
+                                }
                             }
                             var total: Double = 0.0
                             for (quantityItem in order.quantityItems) {
@@ -85,6 +92,24 @@ fun OrderScreen(navController: NavController, orderId: String) {
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun NoteItemCard(note: String) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(40.dp)
+            .padding(top = 8.dp, bottom = 8.dp, start = 0.dp, end = 0.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White,
+        ),
+        shape = RoundedCornerShape(0)
+    ) {
+        Row(modifier = Modifier.fillMaxSize()) {
+            Text(text = "Note: " + note)
         }
     }
 }
