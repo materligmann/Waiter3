@@ -155,7 +155,7 @@ fun OrdersScreen(navController: NavHostController) {
                                 }
                             }
                             var rememberedOrder = remember { mutableStateOf(order) }
-                            OrderCard(orders = rememberedOrders, index = index) {
+                            OrderCard(orders = rememberedOrders, index = index, navController) {
                                 navController.navigate("order/${order.id}")
                             }
                         }
@@ -183,7 +183,7 @@ fun onNewOrder(navController: NavController, orders: MutableState<Orders?>) {
 fun LazyListState.isScrolledToTheEnd() = layoutInfo.visibleItemsInfo.lastOrNull()?.index == layoutInfo.totalItemsCount - 1
 
 @Composable
-fun OrderCard(orders: MutableState<Orders?>, index: Int, clickAction: () -> Unit) {
+fun OrderCard(orders: MutableState<Orders?>, index: Int, navController: NavController,clickAction: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -195,26 +195,36 @@ fun OrderCard(orders: MutableState<Orders?>, index: Int, clickAction: () -> Unit
             containerColor = Color.White,
         )
     ) {
-        OrderContent(orders, index)
+        OrderContent(orders, index, navController)
     }
     Divider()
 }
 
 @Composable
-fun OrderContent(orders: MutableState<Orders?>, index: Int){
+fun OrderContent(orders: MutableState<Orders?>, index: Int, navController: NavController){
     val formatter = SimpleDateFormat("hh:mm")
     if (orders.value != null) {
         val time = formatter.format(orders.value!!.entries[index].date)
         var checked = remember { mutableStateOf(orders.value!!.entries[index].check) }
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxSize()) {
             ImageButton(checked = checked, onCheck = {
-                orders.value!!.entries[index].check = true
-                checked.value = true
-                ModelPreferencesManager.put(orders.value, "KEY_ORDERS")
+                var unlockPro = ModelPreferencesManager.get<Boolean>("KEY_PRO")
+                if (unlockPro == true) {
+                    orders.value!!.entries[index].check = true
+                    checked.value = true
+                    ModelPreferencesManager.put(orders.value, "KEY_ORDERS")
+                } else {
+                    navController.navigate("subscription")
+                }
             }, onUnchecked = {
-                orders.value!!.entries[index].check = false
-                checked.value = false
-                ModelPreferencesManager.put(orders.value, "KEY_ORDERS")
+                var unlockPro = ModelPreferencesManager.get<Boolean>("KEY_PRO")
+                if (unlockPro == true) {
+                    orders.value!!.entries[index].check = false
+                    checked.value = false
+                    ModelPreferencesManager.put(orders.value, "KEY_ORDERS")
+                } else {
+                    navController.navigate("subscription")
+                }
             })
             Spacer(modifier = Modifier.width(10.dp))
             Text(text = time)

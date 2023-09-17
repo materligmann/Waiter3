@@ -65,7 +65,7 @@ fun OrderScreen(navController: NavController, orderId: String) {
                         .padding(16.dp)
                         .fillMaxSize()) {
                         if (index != -1 && rememberedSOrders.value != null) {
-                            DateCheckCard(orders = rememberedSOrders, index)
+                            DateCheckCard(orders = rememberedSOrders, index, navController)
                             TableCard(orders = rememberedSOrders, index = index)
                             var currency = ModelPreferencesManager.get<String>("KEY_CURRENCY")
                             if (currency == null) {
@@ -200,7 +200,7 @@ fun TotalContent(total: Double, symbol: String) {
 }
 
 @Composable
-fun DateCheckCard(orders: MutableState<Orders>, index: Int) {
+fun DateCheckCard(orders: MutableState<Orders>, index: Int, navController: NavController) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -210,7 +210,7 @@ fun DateCheckCard(orders: MutableState<Orders>, index: Int) {
             containerColor = Color.White,
         ),
     ) {
-        DateCheckContent(orders = orders, index)
+        DateCheckContent(orders = orders, index, navController)
     }
     Divider()
 }
@@ -225,7 +225,7 @@ fun TableContent(orders: MutableState<Orders>, index: Int) {
 }
 
 @Composable
-fun DateCheckContent(orders: MutableState<Orders>, index: Int) {
+fun DateCheckContent(orders: MutableState<Orders>, index: Int, navController: NavController) {
     val formatter = SimpleDateFormat("MMM dd yyyy hh:mm")
     var checked = remember { mutableStateOf(orders.value.entries[index].check) }
     if (orders.value != null) {
@@ -236,14 +236,23 @@ fun DateCheckContent(orders: MutableState<Orders>, index: Int) {
         ) {
             Text(text = formatter.format(orders.value.entries[index].date), fontWeight = FontWeight.Bold)
             ImageButton(checked = checked, onCheck = {
-                orders.value.entries[index].check = true
-                checked.value = true
-                ModelPreferencesManager.put(orders.value, "KEY_ORDERS")
-
+                var unlockPro = ModelPreferencesManager.get<Boolean>("KEY_PRO")
+                if (unlockPro == true) {
+                    orders.value.entries[index].check = true
+                    checked.value = true
+                    ModelPreferencesManager.put(orders.value, "KEY_ORDERS")
+                } else {
+                    navController.navigate("subscription")
+                }
             }, onUnchecked = {
-                orders.value.entries[index].check = false
-                checked.value = false
-                ModelPreferencesManager.put(orders.value, "KEY_ORDERS")
+                var unlockPro = ModelPreferencesManager.get<Boolean>("KEY_PRO")
+                if (unlockPro == true) {
+                    orders.value.entries[index].check = false
+                    checked.value = false
+                    ModelPreferencesManager.put(orders.value, "KEY_ORDERS")
+                } else {
+                    navController.navigate("subscription")
+                }
             })
         }
     }
