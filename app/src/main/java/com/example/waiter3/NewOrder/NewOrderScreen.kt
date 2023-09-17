@@ -182,9 +182,14 @@ fun NewOrderScreen(navController: NavHostController) {
                                     check(canSave, rememberedQuantityTable.value)
                                 },
                                 onNotes = {
-                                    selectedSection = sectionIndex
-                                    selectedItem = itemIndex
-                                    notesDialogOpen.value = true
+                                    var unlockPro = ModelPreferencesManager.get<Boolean>("KEY_PRO")
+                                    if (unlockPro == true) {
+                                        selectedSection = sectionIndex
+                                        selectedItem = itemIndex
+                                        notesDialogOpen.value = true
+                                    } else {
+                                        navController.navigate("subscription")
+                                    }
                                 }) {
 
                             }
